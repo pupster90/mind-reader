@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Html Header Stuff -->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,minimum-scale=1, user-scalable=no">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"> -->
+
+    <title>MindReader</title>
+
+    <script type="text/javascript" src="/staticFiles/script/jquery-2.1.3.min.js"></script>
+    <link type="text/css" rel="stylesheet"  href="/staticFiles/bootstrap/css/bootstrap.min.css" >
+    <link rel="script" href="/staticFiles/bootstrap/js/bootstrap.min.js">
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/staticFiles/stylesheets/clickablePanel.css">
+
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"> -->
+    <link rel="stylesheet" href="/staticFiles/font-awesome/css/font-awesome.min.css">
+
+
+    <script type="application/javascript" src="/staticFiles/script/fastclick.js"></script>
+    <script>
+        if ('addEventListener' in document) {
+            document.addEventListener('DOMContentLoaded', function() {
+                FastClick.attach(document.body);
+            }, false);
+        }
+    </script>
+
+
+</head>
+
+
+
+
+
+
+
+
+
+<body>
+
+<!-- Intro: xs window only -->
+<nav class="navbar navbar-default hidden-sm hidden-md hidden-lg">
+  <div class="container-fluid">
+        <div class="navbar-header" role="navigation" style="background: white;">
+          <div class="container">
+              <div class="row">
+                  <h3 class="text-center" style="margin-top: 0px;padding-top: 10px;color:#7a7a7a;"  href="#"><strong>&nbsp&nbsp&nbspMind Reader</strong> <p class="fb-like" data-href="http://www.mindreaderpro.appspot.com/" data-layout="button" data-action="like" data-size="small" data-show-faces="true" data-share="false"></p>  </h3>
+              </div>
+          </div>
+        </div>
+
+    <div class="collapse navbar-collapse" id="myNavbar" style="background: white;">
+      <ul class="nav navbar-nav">
+                <p class="text-center"><small>It's a race to the finish. Press a key,  <span class="glyphicon glyphicon-triangle-left"></span> or
+                     <span class="glyphicon glyphicon-triangle-right"></span>. I'll try to guess your move. If I guess right I move my blue car. If I'm wrong your red car moves.
+            Play smart but move fast, if the green columns disappear you lose!</small>  </p>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<!-- Intro: sm, md,lg windows -->
+<div class="container-fluid  hidden-xs">
+    <div class="jumbotron" style="background-color: white; margin-bottom:0px;margin-top:0px;padding-bottom:0px;padding-top:0px">
+        <div class="row">
+                <h1 class="text-center">&nbsp&nbsp&nbspMind Reader <p class="fb-like"  data-href="http://www.mindreaderpro.appspot.com/" data-layout="button" data-action="like" data-size="small" data-show-faces="true" data-share="false"></p> </h1>
+        </div>
+
+        <hr class="hidden-lg hidden-md">
+        <h3 class="text-center">Can I read your mind?!?</h3>
+        <div class="row">
+            <div class="col-xs-12 col-md-10 col-md-offset-1">
+                <p class="text-center"><small>It's a race around the track. Press a key,  <span class="glyphicon glyphicon-triangle-left"></span> or
+                     <span class="glyphicon glyphicon-triangle-right"></span> I'll try to guess your move. If I guess correct I move <strong style="color: blue">my blue</strong> car. If I'm wrong <strong style="color: red">your red</strong> car moves.
+               Press <strong>C</strong> to Cheat. Play smart but don't run out of time. If the  <strong style="color: #32bf32">green columns</strong> disappear you lose!</small>  </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Website Body -->
+<div class="container-fluid ">
+    <div class="text-center" style="padding: 0;">
+        <button id="startButton" style="border: 3px solid #343434;" type="button" onclick="main.startClicked()" class="btn btn-lg btn-default"  data-toggle="tooltip" title="Start a Game"><strong>Play!</strong></button>
+    </div>
+
+    <h4 class="text-center"><a href="/"  data-toggle="tooltip" title="Go to Expert's Webpage" data-placement="bottom" >Already a Pro?</a></h4>
+
+
+    <div class="row">
+        <!-- canvas that shows racetrack -->
+        <div class="col-xs-12 col-md-offset-2 col-md-8">
+            <canvas  id="myCanvas" width="1000"height="500" style=" width:100%; height:auto;">
+            </canvas>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Jumbotron used for blank space -->
+<div class="jumbotron" style="background-color: white;"> </div>
+
+
+<script>$(document).ready(function(){ $('[data-toggle="tooltip"]').tooltip(); });</script>
+
+
+
+</body>
+</html>
+
+
+
+
+<script  src="/staticFiles/script/RaceTrack.js"></script>
+<script  src="/staticFiles/script/FB.js"></script>
+<script  src="/staticFiles/script/Main.js"></script>
+<script>
+    var track = new RaceTrack();
+    track.drawTrack();
+    var main= new Main();
+</script>
+
+
+
+
+
+

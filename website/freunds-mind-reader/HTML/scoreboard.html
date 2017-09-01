@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MindReader</title>
+    <script type="text/javascript" src="/staticFiles/script/jquery-2.1.3.min.js"></script>
+    <link type="text/css" rel="stylesheet"  href="/staticFiles/bootstrap/css/bootstrap.min.css" >
+    <link rel="script" href="/staticFiles/bootstrap/js/bootstrap.min.js">
+    <link rel="stylesheet" href="/staticFiles/font-awesome/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=554159228102379";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
+    <!--   Controls Link Appearance on Facebook   -->
+    <meta property="og:image" content="https://scontent-lax3-1.xx.fbcdn.net/t31.0-8/12697305_658298070978696_2334205489495769526_o.jpg" />
+    <link rel="image_src" href="https://scontent-lax3-1.xx.fbcdn.net/t31.0-8/12697305_658298070978696_2334205489495769526_o.jpg" />
+    <meta property="og:title" content="MindReader Game" />
+    <meta property="og:description" content="Can a computer read your mind? Play this fast paced gamed and find out!" />
+</head>
+
+
+
+
+
+
+
+
+<body>
+
+<div class="container-fluid">
+
+    <!-- Heading Text for Scoreboard -->
+    <div class="jumbotron" style="background-color: white; margin-top:0px;padding-bottom:0px;padding-top:0px">
+        <h1 class="text-center">Score<small style="font-size: 95%;"><i>Board</i></small></h1>
+
+        {% if result=="View" %}
+            <div class="row"><div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <p class="text-center"><small>Below are people's high scores. Play a game to see if you can make it on the list! </small>  </p>
+            </div></div>
+        {% elif result=="Loser" %}
+            <h3 class="text-center">The Computer Beat You!</h3>
+            <div class="row"><div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <p class="text-center"><small>The computer can read your mind!
+                        You <strong style="color: red;">lost {{new_points   * -1}}</strong> point.
+                        Play again to see if you can outsmart the computer. Below are people's high scores.</small></p>
+            </div></div>
+        {% elif result=="Winner" %}
+        <h3 class="text-center">You Won!</h3>
+            <div class="row"><div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <p class="text-center"><small>You outsmarted the computer. Great job!
+                        You <strong style="color: #40aa43">won {{new_points}}</strong> points.
+                        Play again to see if you can place your name on the high scores board. Below are people's high scores.</small></p>
+            </div></div>
+        {% elif result=="TimeOut" %}
+            <h3 class="text-center">You Ran Out of Time!</h3>
+            <div class="row"><div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <p class="text-center"><small>Move faster to beat the computer.
+                        You <strong style="color: red;">lost 1</strong> point. Play again
+                        and see if you can win. Below are people's high scores.</small>  </p>
+            </div></div>
+        {% elif result=="HighScore" %}
+            <h3 class="text-center">Congrats <strong>{{ username }}</strong>!</h3>
+            <div class="row">
+                <div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <p class="text-center"><small>
+                        You have set <strong>{{newHighs|length}}</strong> new high score{% if newHighs|length != 1 %}s{% endif %}!
+                        {% if new_points>0 %}
+                        You <strong style="color: #40aa43">won {{new_points}}</strong> points.
+                        {% else %}
+                        You <strong style="color: red">lost {{new_points * -1}}</strong> points.
+                        {% endif %}
+                        Your new high scores are highlighted in <span style="color: red">red</span> below.</small></p>
+                </div>
+            </div>
+
+            <div >
+                <p class="text-center" ><small style="font-size: 80%;color: #a8a8a8; text-align: center" > <span class="glyphicon glyphicon-thumbs-up "></span> &nbsp  Show Off your Score  &nbsp <span class="glyphicon glyphicon-thumbs-up"></span> &nbsp
+                    <l class="fb-share-button" data-href="http://www.mindreaderpro.appspot.com/scoreboard/?result=View" data-layout="button" data-size="large" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.mindreaderpro2.appspot.com%2Fhighscores&amp;src=sdkpreparse">Share</a></l>
+                </small></p>
+            </div>
+        {% else %}   <!-- The last case is ether "Cheater" or "Hacker" -->
+            <h3 class="text-center" style="color:red;">You Cheated!!!!</h3>
+            <div class="row"><div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <p class="text-center"><small> When you cheat you automatically <strong style="color: red;">loose 1</strong> point.
+                        Play again and see if you can beat the computer without cheating. Below are people's high scores.</small>  </p>
+            </div></div>
+        {% endif %}
+
+
+
+
+
+    <div class="row">
+            <button id="restartButton" style="border: 3px solid #343434;" type="button" onclick="location.href = '/';" class="btn center-block btn-lg btn-default"><strong>Home</strong></button>
+    </div>
+
+    <div clas="row">
+        <div class="col-xs-offset-5 col-xs-2">
+            <hr>
+        </div>
+    </div>
+
+    </div>
+
+
+    <!--  ScoreaBoard Table  -->
+    <div class="col-xs-12 col-sm-8 col-md-8 col-lg-7 col-md-offset-1 col-lg-offset-2 ">
+
+
+        <div class="row">
+            <ul class="nav nav-pills">
+                    <li role="presentation" style= "padding: 0px 0px;margin: 0px 0px; font-size:120%" id="Hour_Pill" class="active col-xs-6 col-sm-3 text-center" ><a onclick='clickPill("Hour")'>Hour</a></li>
+                    <li role="presentation" style= "padding: 0px 0px;margin: 0px 0px; font-size:120%" id="Day_Pill" class="col-xs-6 col-sm-3 text-center"  ><a onclick='clickPill("Day")'>Day</a></li>
+                    <li role="presentation" style= "padding: 0px 0px;margin: 0px 0px; font-size:120%" id="Month_Pill" class="col-xs-6 col-sm-3 text-center" ><a onclick='clickPill("Month")'>Month</a></li>
+                    <li role="presentation" style= "padding: 0px 0px;margin: 0px 0px; font-size:120%" id="Total_Pill" class="col-xs-6 col-sm-3 text-center" ><a onclick='clickPill("Total")'>All Time!</a></li>
+            </ul>
+        </div>
+
+
+        <div class="row">
+            <table class="table table-condensed table-hover">
+                <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th></th>
+                    <th>Player</th>
+                    <th>Points</th>
+                    <th>Games</th>
+                    <th></th>
+                </tr>
+                </thead>
+                {% for highScore in scores %}
+                    <tbody id="{{ highScore.time  }}" class="hidden" >
+                        {% for i in range( highScore.name |length  ) %}
+                        <tr>
+                            {% if highScore.name[i] == username and highScore.time in newHighs  %}
+                                <td style="color: red; vertical-align:middle;"><strong>{{ i+1 }}</strong></td>
+                                {% if highScore.homeUrl[i] == None %}
+                                    <td><a><img src="{{highScore.picture[i]}}" ></a></td>
+                                    <td style="vertical-align:middle; color: red;" ><strong>{{ highScore.name[i] }}</strong></td>
+                                {% else  %}
+                                    <td><a  href="{{highScore.homeUrl[i]}}" > <img src="{{highScore.picture[i]}}" >  </a>  </td>
+                                    <td style="vertical-align:middle;" ><a style="color: red;"  href="{{highScore.homeUrl[i]}}" data-toggle="tooltip" data-placement="right" title="Facebook Page" >  <strong>{{ highScore.name[i] }}</strong> </a>  </td>
+                                {% endif  %}
+                                <td style="color: red; vertical-align:middle;"><strong>{{ highScore.score[i] }}</strong></td>
+                                <td style="color: red; vertical-align:middle;"><strong>{{ highScore.gamesPlayed[i] }}</strong></td>
+                            {% else %}
+                                <td style="vertical-align:middle;" >{{ i+1 }}</td>
+                                {% if highScore.homeUrl[i] == None %}
+                                    <td> <img src="{{highScore.picture[i]}}" >   </td>
+                                    <td style="vertical-align:middle;" > {{ highScore.name[i] }}  </td>
+                                {% else  %}
+                                    <td><a  href="{{highScore.homeUrl[i]}}" > <img src="{{highScore.picture[i]}}" >  </a>  </td>
+                                    <td style="vertical-align:middle;" ><a  href="{{highScore.homeUrl[i]}}" data-toggle="tooltip" data-placement="right" title="Facebook Page" > {{ highScore.name[i] }} </a>  </td>
+                                {% endif %}
+                                <td style="vertical-align:middle;" >{{ highScore.score[i] }}</td>
+                                <td style="vertical-align:middle;" >{{ highScore.gamesPlayed[i] }}</td>
+                            {% endif %}
+                            <td style="vertical-align:middle;"><a  href="/stats/?num={{ highScore.userID[i] }}" data-toggle="tooltip" data-placement="left" title="View Stats" > <i class="fa fa-line-chart fa-2x"></i> </a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+
+    <!--  Facebook Page  -->
+    <div class="hidden-xs col-sm-4 col-md-3  col-lg-3" >
+        <div class="row">
+                <div class="fb-page center-block" data-href="https://www.facebook.com/MindReaderPro/" data-tabs="timeline" data-small-header="true" data-adapt-container-width="true" data-hide-cover="true" data-show-facepile="true"><blockquote cite="https://www.facebook.com/MindReaderPro/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/MindReaderPro/">The Mind Reading Machine</a></blockquote></div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+
+</body>
+
+
+<script>
+jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+
+    var onPill = "Hour";
+    document.getElementById( onPill).className = "";
+
+    function clickPill(pillName) {
+        console.log("Pill CLicked!")
+        document.getElementById(onPill).className = "hidden";
+        document.getElementById(onPill+"_Pill").className = "col-xs-6 col-sm-3 text-center";
+        onPill = pillName;
+        document.getElementById(onPill).className = "";
+        document.getElementById(onPill+"_Pill").className = "active col-xs-6 col-sm-3 text-center";
+    };
+
+
+</script>
+
+
+</html>

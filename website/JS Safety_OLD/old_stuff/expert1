@@ -1,0 +1,555 @@
+
+
+
+
+
+  ////////////////////////////////////
+ ///////    Initialization     //////
+////////////////////////////////////
+
+
+
+var NUM_TRIALS_TO_WIN = 100
+var num_trials = 2*NUM_TRIALS_TO_WIN-1;
+var your_guess
+var my_guess
+var expPred   // double p; in C Schapire
+
+var cbeta
+var gamm
+var beta
+
+
+
+var loss = 0.0;
+
+
+var BETATree = .55
+var cbetaTree= -1
+FTree= function(r) {
+    if (cbetaTree < 0) {
+        if (BETATree == 1) { cbetaTree = .5
+        } else { cbetaTree = (1. + BETATree) * Math.log(2. / (1. + BETATree)) / (2. * (1. - BETATree)) }
+    }
+
+    if (r <= 0.5 - cbetaTree) { return 0
+    } else if (r <= 0.5 + cbetaTree) { return .5 - (1 - 2 * r) / (4 * cbetaTree)
+    } else { return 1 }
+}
+
+
+
+
+
+
+
+  ///////////////////////////
+ ///////    Tree      //////
+///////////////////////////
+
+
+function add_bit(b,s){
+    // ** FOR DEBUGGING
+    //print("inside add_bit, b=" + b + " s="+ s)
+    this.bit= b
+    this.nextBit= s
+    // ** FOR DEBUGGING
+    //print("add_bit function complete")
+    return
+}
+
+
+function TreeNode(){
+    // ** FOR DEBUGGING
+    //print( "New Tree Node"  )
+
+    this.son= [null,null];
+    this.wt = [1,1];
+    this.end_wt = 1;
+    this.sum_wt= 1;
+}
+
+
+function get_sum_wt(treeNode){
+    if( treeNode == null){ return 1
+    }else{ return treeNode.sum_wt}
+}
+
+
+function update_wt(treeNode,ex,y,beta) {
+    //print("inside update_wt")
+    //console.log("tree update/ex: start values")
+    //console.log(treeNode)
+    //console.log(ex)
+
+    treeNode.wt[1 - y] *= beta
+
+    if (ex == null) {
+        treeNode.end_wt = 0.5 * (1 + beta)
+    } else {
+        update_wt(treeNode.son[ex.bit], ex.nextBit, y, beta);
+    }
+
+    treeNode.sum_wt= 0.25*(treeNode.wt[0] + treeNode.wt[1]) +
+        0.5 * get_sum_wt(treeNode.son[0]) * get_sum_wt(treeNode.son[1]) * treeNode.end_wt
+    //print("leaving update_wt")
+}
+
+
+function get_pred_wt(treeNode, ex){
+    // ** debugging
+    //print("inside get_pred_wt")
+    if( ex==null){
+        //print("ex=null")
+        return 0.25 * (treeNode.wt[1] + get_sum_wt(treeNode.son[0]) * get_sum_wt(treeNode.son[1]));
+    }else{
+        var b = ex.bit;
+        // ** debbuging
+        //print("current ex.bit="+b)
+        if (treeNode.son[b] == null){
+            //print("adding tree node")
+            treeNode.son[b] = new TreeNode();
+        }
+        //print("doing recursion on "+treeNode.son[b]+" "+ex.nextBit)
+
+        //print("out of recursion")
+
+        return 0.25 * treeNode.wt[1] +
+            0.5 * get_sum_wt(treeNode.son[1-b]) * get_pred_wt(treeNode.son[b], ex.nextBit) * treeNode.end_wt;
+        // ** debugging
+        //console.log("result of get_pred_wt")
+        //console.log(treeNode)
+    }
+    //console.log("treeNode.prediction=")
+    //console.log(treeNode.prediction)
+}
+
+
+
+
+
+
+
+
+
+
+
+  /////////////////////////////////////////////////
+ ///////    EXPERT: var_tree_exp_sym_py     //////
+/////////////////////////////////////////////////
+
+
+function EXPERT_var_tree_exp_sym_py() {
+
+    this.tree = new TreeNode();
+    this.ex = null;
+    this.last_y = -1;
+    this.y = null; this.dy = null; this.p = null; this.win = null;
+    this.name = "varTreePY"
+
+    this.NUMBER = function () {
+        return 1
+    }
+
+
+
+    this.PREDICTION = function () {
+        //print( "PREDICT exp_PY"  )
+        //console.log("PREDICT exp_PY")
+        //console.log("old tree")
+        //console.log(this.tree)
+
+        var thisPred
+        if (this.last_y == -1) {
+            thisPred =  0.5;
+        } else {
+
+            //print("get_pred_wt="+get_pred_wt(this.tree, this.ex))
+            //print("get_sum_wt="+get_sum_wt(this.tree))
+
+            thisPred = Math.abs(this.last_y - FTree( get_pred_wt(this.tree, this.ex) / get_sum_wt(this.tree)))
+            //print("prediction="+(Math.abs(this.last_y - FTree(get_pred_wt(this.tree, this.ex) / get_sum_wt(this.tree)))))
+            //console.log(this.ex)
+
+        }
+        //console.log("new tree")
+        //console.log(this.tree)
+        //console.log(this.ex)
+        return thisPred;
+    }
+
+
+
+// Parm is 2*comp_guess + human_guess
+    this.UPDATE = function(parm) {
+        // ** FOR DEBUGGING
+        //print( "Updating exp_PY"  )
+        //console.log("UPDATE exp_PY")
+        //print("Value inside UPDATE param: "+parm )
+        //print("last_y="+ this.last_y)
+
+        this.p = parm >> 1
+        this.y = parm & 1
+        this.win = (this.p == this.y)? 1:0
+
+        // ** FOR DEBUGGING
+        //print(" parm="+parm+" last_y="+this.last_y)
+        //print(" p="+this.p+" y="+this.y+" win="+this.win)
+
+        if (this.last_y != -1) {
+            this.dy = (this.y != this.last_y)? 1:0;
+            //print("dy="+this.dy)
+            // ** FOR DEBUGGING
+            //print("about to Update tree weights")
+            update_wt(this.tree, this.ex, this.dy, BETATree);
+            //print(this.tree)
+            //print("tree weights updated")
+            //print("adding "+this.dy)
+            this.ex = new add_bit(this.dy, this.ex);
+        }
+        // ** FOR DEBUGGING
+        //print("about to update add_bit ")
+        //print("adding "+this.win)
+        this.ex = new add_bit(this.win, this.ex)
+        // ** FOR DEBUGGING
+        //print("outside of add_bit function");
+        //print("ex.Bit changed to " + this.ex.bit)
+        //print("nextBit changed to: "+ this.ex.nextBit)
+        //console.log(this.ex)
+
+        // ** FOR DEBUGGING
+        //console.log(this.ex)
+
+        this.last_y = this.y
+
+        //console.log("new ex:")
+        //console.log(this.ex)
+        return 0
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+  /////////////////////////////////////////////////
+ ///////    EXPERT: var_tree_exp_sym_y     //////
+/////////////////////////////////////////////////
+
+
+function EXPERT_var_tree_exp_sym_y() {
+
+
+    this.tree = new TreeNode();
+    this.ex = null;
+    this.last_y = -1;
+    this.y = null; this.dy = null;
+    this.name = "varTreeY"
+
+    this.NUMBER = function () {
+        return 1
+    }
+
+    this.PREDICTION = function () {
+        // ** FOR DEBUGGING
+        //print( "Predicting exp_Y"  )
+        //console.log("PREDICT exp_Y")
+
+        var thisPred
+        if (this.last_y == -1) {
+            thisPred =  0.5;
+        } else {
+
+            //print("get_pred_wt="+get_pred_wt(this.tree, this.ex))
+            //print("get_sum_wt="+get_sum_wt(this.tree))
+
+            thisPred = Math.abs(this.last_y - FTree( get_pred_wt(this.tree, this.ex) / get_sum_wt(this.tree)))
+            //print("prediction="+(Math.abs(this.last_y - FTree(get_pred_wt(this.tree, this.ex) / get_sum_wt(this.tree)))))
+            //console.log(this.ex)
+
+        }
+        //console.log("new tree")
+        //console.log(this.tree)
+        //console.log(this.ex)
+        return thisPred;
+
+        //if (this.last_y == -1) {
+        //    return 0.5;
+        //} else {
+        //    return Math.abs(this.last_y - FTree( get_pred_wt(this.tree, this.ex) / get_sum_wt(this.tree)));
+        //}
+    }
+
+
+
+    this.UPDATE = function(parm) {
+        // ** FOR DEBUGGING
+        //console.log("UPDATE exp_Y")
+        //print( "Updating exp_Y"  )
+
+        this.y = parm & 1
+        if (this.last_y != -1) {
+            this.dy = (this.y != this.last_y)? 1:0;
+            update_wt(this.tree, this.ex, this.dy, BETATree);
+            this.ex = new add_bit(this.dy, this.ex);
+        }
+        // this.ex = add_bit(this.win, this.ex)    <-- *IS THIS REALLY NOT SUPPOSED TO BE THERE???
+        this.last_y = this.y
+        return 0
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+  ////////////////////////////
+ ///////   MAIN FILE   //////
+////////////////////////////
+
+
+
+
+/************
+** functions F, U are taken directly from "experts" paper.
+** function ginv(x) is equal to g(1/x) given in "experts" paper.
+** compute_beta computes the values of beta, gamm and cbeta to be used.
+************/
+
+
+
+
+
+function ginv(x){
+    return 1 + 2*x - 2*Math.sqrt(x*x + x);
+}
+
+function F(r){
+    if( r <= 0.5-cbeta ){ return 0
+    }else if( r <= 0.5+cbeta ){ return .5-  (1-2*r)/ (4*cbeta)
+    }else{ return 1 }
+}
+
+function U(q){
+    return 1-(1-beta)*q
+}
+
+
+
+function compute_beta(){
+    beta = ginv(2 * Math.log( num_experts)/num_trials);
+    gamm = 1.0;
+    cbeta = (beta == 1.0 ? 0.5 : (1.+beta)*Math.log(2./(1.+beta)) / (2.*(1.-beta)));
+}
+
+
+
+
+    function random_bit(p){
+        if( Math.random()>p ){ return 0
+        }else{ return 1}
+    }
+
+
+
+    function get_experts_pred(){
+
+        // ** FOR DEBUGGING
+        //print("")
+        //print( "Inside prediciton function"  )
+
+        var sw = 0
+        var pw = 0
+
+        for( i=0; i< expert.length; i++){
+            for(j=0; j<expert[i].NUMBER(); j++){
+                gweight[i][j] = Math.pow(weight[i][j], gamm);
+
+                // ** FOR DEBUGGING
+                //print("")
+                print( "new gweight["+i+"]["+j+"]="+(gweight[i][j])  )
+
+                sw += gweight[i][j]
+                pred[i][j] = expert[i].PREDICTION()
+                pw += gweight[i][j] * pred[i][j];
+            }
+        }
+        var r = pw/sw;
+
+        // ** FOR DEBUGGING
+        // print("next CompGuess Prob:   "+F(r))
+        //print("cBETATree: "+cbetaTree)
+
+
+        return F(r);
+    }
+
+
+
+
+    function update_experts(p,y){
+
+        // ** FOR DEBUGGING
+        //print("")
+        //print( "Inside Update function"  )
+
+        var q;
+        for (i = 0; i < expert.length; i++) {
+
+            // ** FOR DEBUGGING
+            //print("")
+
+            expert[i].UPDATE(2*p+y);
+            for (j = 0; j < expert[i].NUMBER(); j++) {
+                q = Math.abs(pred[i][j] - y);
+                exp_loss[i][j] += q;
+                weight[i][j] = gweight[i][j] * U(q);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ///////////////////////////////////////
+ ///////   Code that DOES stuff   //////
+///////////////////////////////////////
+
+
+    var gweight = new Array()
+    var pred = new Array()
+
+    var expert = new Array()
+    expert[0] = new EXPERT_var_tree_exp_sym_py()
+    expert[1] = new EXPERT_var_tree_exp_sym_y()
+
+    var experts=""
+    for(i=0; i<expert.length;i++)
+        experts+=" "+expert[i].name
+
+    var weight = new Array()
+    var exp_loss= new Array()
+    var num_experts=0
+    for( i=0;i<expert.length;i++ ) {
+        num_experts += expert[i].NUMBER()
+        weight[i]= new Array()
+        exp_loss[i]= new Array()
+        gweight[i]= new Array()
+        pred[i]= new Array()
+        for (j = 0; j < expert[i].NUMBER(); j++) {
+            weight[i][j] = 1.0
+            exp_loss[i][j] = 0.0
+        }
+    }
+
+    compute_beta()
+
+
+
+
+
+makeGuess= function(humanGuess){
+    expPred = get_experts_pred();
+    my_guess = random_bit(expPred);
+    your_guess = humanGuess;
+
+    loss += Math.abs(expPred - your_guess);
+    update_experts(my_guess,your_guess);
+
+}
+
+
+
+
+
+
+
+
+
+
+  ///////////////////////////
+ ///////   Interface   /////
+///////////////////////////
+
+var expProb;
+var expProbs=[];
+function compGuess(compGuess,humanGuess){
+    var num
+    update_experts(compGuess,humanGuess);
+    expProb = get_experts_pred()
+    expProbs.push(expProb)
+    num = random_bit(expProb)
+    return num
+}
+
+
+
+function compguess(compGuess,humanGuess){
+    var _0x9cbd=[];
+    var num=compGuess+humanGuess;
+    var get_experts__pred=0.5;
+    num=random_bit(get_experts__pred);
+    return num;
+}
+
+
+
+
+
+function messageBoxClicked(){
+    //beta=0.845711
+    //var test= U(5)
+    //test= weight.length
+    //var test2= weight[0][0]
+    //var test3= beta
+    //document.getElementById('messageBox').innerHTML = ' *weight.length: '+test+
+    //    '\n *weight[0][0] : '+test2+ '\n *beta: '+test3
+    //document.getElementById('messageBox').innerHTML = ' comp guess: '+ guess
+    document.getElementById('messageBox').innerHTML =  debugArray.length
+
+    //for(i=0; i<6; i++){
+    //    print( debugArray[i] )
+    //    numberClicked( debugArray[i] )
+    //}
+}
+
+
+function print(words){
+    document.getElementById('console').innerHTML += '<br>'+words
+}
+
+
+
+
+
+
+
+
+
+
+

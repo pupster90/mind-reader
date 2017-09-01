@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+    <title>MindReader</title>
+    <script type="text/javascript" src="/staticFiles/script/jquery-2.1.3.min.js"></script>
+    <link type="text/css" rel="stylesheet"  href="/staticFiles/bootstrap/css/bootstrap.min.css" >
+    <link rel="script" href="/staticFiles/bootstrap/js/bootstrap.min.js">
+    -->
+    <title>MindReader</title>
+
+    <script type="text/javascript" src="/staticFiles/script/jquery-2.1.3.min.js"></script>
+    <link type="text/css" rel="stylesheet"  href="/staticFiles/bootstrap/css/bootstrap.min.css" >
+    <link rel="script" href="/staticFiles/bootstrap/js/bootstrap.min.js">
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/staticFiles/stylesheets/clickablePanel.css">
+
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"> -->
+    <link rel="stylesheet" href="/staticFiles/font-awesome/css/font-awesome.min.css">
+
+
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <style>
+    /* unvisited link */
+    a {  color: #9f9f9f;  }
+    /* mouse over link */
+    a:hover {  color: #2b292c;  }
+    </style>
+</head>
+
+
+
+
+
+<div class="container-fluid">
+
+    <!-- Header Stuff -->
+    <div class="jumbotron" style="background-color: white; margin-top:0px;padding-bottom: 5px;padding-top:0px">
+        <h1 class="text-center" >Player Profile</h1>
+        <div class="row">
+            <div class="col-xs-12 text-center">
+                <h2 class="row" style="color: red">
+                    {{ user.name }}
+                    <a href="/" data-toggle="tooltip" title="High Scores"  class="btn"><i class="fa fa-home fa-3x"></i></a>
+                    <a href="/scoreboard/?result=View" data-toggle="tooltip" title="High Scores"  class="btn"><i class="fa fa-trophy fa-3x"></i></a>
+                </h2>
+            </div>
+        </div>
+        <div clas="row">
+            <div class="col-xs-offset-5 col-xs-2">
+                <hr>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Statstics -->
+    <div class="jumbotron" style="background-color: white; margin-top:0px;padding-bottom:0px;padding-top:0px">
+        <div class="row">
+          <h3 class="text-center" >Key Statistics</h3>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-10 col-sm-offset-4 col-sm-4">
+            <table class="table table-condensed">
+                <tbody>
+                  <tr>
+                    <td><strong>Total Points</strong></td>
+                    <td id="totalPoints">{{user.gameStats.score["Total"]}}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Games Played</strong></td>
+                    <td id="gamesPlayed">{{user.gameStats.gamesPlayed}}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Games Won</strong></td>
+                    <td id="gamesWon">{{user.gameStats.count["Winner"]}}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Last Played</strong></td>
+                    <td id="lastPlayed">{{user.gameStats.lastPlayed.strftime("%B")}} {{user.gameStats.lastPlayed.day}}, {{user.gameStats.lastPlayed.year}}</td>
+                  </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <div clas="row">
+            <div class="col-xs-offset-5 col-xs-2">
+                <hr>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-xs-12 col-md-offset-2 col-md-4">
+            <h3 class="text-center"><strong>Game Outcomes </strong></h3>
+            <div  id="outcomes" class="col-sm-offset-4 col-md-offset-0" >
+            </div>
+        </div>
+        <div class="col-xs-12   col-md-4" >
+            <h3 class="text-center"><strong>Current Scores</strong></h3>
+            <div  id="current_scores" class="col-sm-offset-4 col-md-offset-0">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <h3 class="text-center"><strong>Points Over Time</strong></h3>
+        <div class="col-xs-12 col-md-offset-2 col-md-8" style="padding-bottom: 150px">
+            <div  id="dates_scores">
+            </div>
+        </div>
+    </div>
+    <div id="chart_div"></div>
+    <div clas="row">
+        <div class="col-xs-offset-5 col-xs-2">
+            <hr>
+        </div>
+    </div>
+
+</div>
+
+
+
+<!-- VARIABLES FOR MAKING STATS -->
+<div class="hidden">
+    <div id="winner">{{ user.gameStats.count["Winner"] }}</div>
+    <div id="loser">{{ user.gameStats.count["Loser"] }}</div>
+    <div id="cheater">{{ user.gameStats.count["Cheater"] }}</div>
+    <div id="unfinished">{{ user.gameStats.count["Unfinished"] }}</div>
+    <div id="timedOut">{{ user.gameStats.count["TimeOut"] }}</div>
+</div>
+
+<div class="hidden">
+    <div id="scoreHour">{{ user.gameStats.score["Hour"] }}</div>
+    <div id="scoreDay">{{ user.gameStats.score["Day"] }}</div>
+    <div id="scoreMonth">{{ user.gameStats.score["Month"] }}</div>
+    <div id="score">{{ user.gameStats.score["Total"] }}</div>
+</div>
+
+
+<input type="hidden" id="hist_len"  value="{{user.gameStats.hist['scores']|length}}">
+{% for i in range( user.gameStats.hist['scores'] | length  ) %}
+    <input type="hidden" id="hist_date{{ i }}"  value="{{user.gameStats.hist['dates'][i]}}">
+    <input type="hidden" id="hist_score{{ i }}" value="{{user.gameStats.hist['scores'][i]}}">
+{% endfor %}
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="/staticFiles/script/drawStats.js"></script>
+
+

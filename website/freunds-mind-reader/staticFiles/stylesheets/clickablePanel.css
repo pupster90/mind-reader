@@ -1,0 +1,12 @@
+
+
+.clickable
+{
+    cursor: pointer;
+}
+
+
+a.clickable { color: inherit; }
+a.clickable:hover { text-decoration:none; }
+
+
