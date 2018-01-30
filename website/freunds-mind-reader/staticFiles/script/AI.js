@@ -10,8 +10,16 @@
 ////////////////////////////////////////////
 
 
-AI = function(){
-    this.max_depth = parseInt(document.getElementById('depth').value);
+AI = function( max_depth=0 ){
+    // This if statement is necessary because sometimes the function is called by the website by "AI()" ,
+    // and other times it is called on the backend for game simulations with "AI(200)"
+    if (max_depth == 0) {
+        this.max_depth = parseInt(document.getElementById('depth').value);
+    } else {
+        this.max_depth = max_depth;
+    };
+    
+    
     //console.log("inside AI class");
     //console.log("max depth:");
     //console.log(this.max_depth);
@@ -33,7 +41,7 @@ AI = function(){
 
         return (.5>expProb)? 0:1;   //<-- DEBUGGING: remove the randomness from the prediction
         // return (Math.random()>expProb)? 0:1; //<-- condensed if/else.  Returns computers binary guess of players move
-    }
+    };
 };
 
 
