@@ -23,7 +23,7 @@ function CtxTree( beta, max_depth){
     };
 
     this.add_bit= function(b){
-        // This creates a list of bits, stored in some super weird recursive class structure
+        // This creates a list of bits, stored in some weird recursive class structure
         // bit == 1 if guessed wrong, otherwise equals 0
         this.ex= {bit:b, nextBit:this.ex}
     };
@@ -75,7 +75,7 @@ function CtxTree( beta, max_depth){
 
 
       //////////////////////////////////////////////
-     ///////    Update Weights? (recursive)  //////
+     ///////    Update Weights (recursive)  //////
     //////////////////////////////////////////////
     this.update_wt= function(y, ex=this.ex, treeNode=this.root) {
         treeNode.wt[1 - y] *= this.beta;

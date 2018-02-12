@@ -30,21 +30,30 @@ function TreeExpert_OG(max_depth) {
             return Math.abs(this.last_y - this.FTree( this.tree.get_pred_wt() / this.tree.get_sum_wt() ))
         }
     };
+    
 
-    this.UPDATE = function(parm) {
+    // I added the "freezeWeights" parameter to schapire's code for testing stuff in the the "data analysis" section
+    this.UPDATE = function(parm, freezeWeights=false) {
         this.p = parm >> 1;   //<-- Parm is 2*comp_guess + human_guess
         this.y = parm & 1;
         this.win = (this.p==this.y)? 1:0;
 
         if (this.last_y != -1) {
             this.dy = (this.y != this.last_y)? 1:0;
-            this.tree.update_wt( this.dy);
+            
+            if( !freezeWeights ){  //<-- by default we update the weights
+                this.tree.update_wt( this.dy);
+            };
             this.tree.add_bit(this.dy);
         }
         this.tree.add_bit(this.win);
         this.last_y = this.y;
         return 0
     }
+    
+
+    
+    
 }
 
 

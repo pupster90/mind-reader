@@ -33,8 +33,8 @@ AI = function( max_depth=0 ){
         return (Math.random()>expProb)? 0:1; //<-- condensed if/else.  Returns computers binary guess of players move
     };
 
-    this.predict= function(compGuess,humanGuess){
-        this.expert.UPDATE(2*compGuess+humanGuess);
+    this.predict= function(compGuess,humanGuess, freezeWeights=false ){
+        this.expert.UPDATE(2*compGuess+humanGuess, freezeWeights);
         var expProb = this.expert.PREDICTION();
         //console.log(expProb)                       //<-- DEBUGGING: prints probability of selecting 1
         this.expProbs.push(expProb);      //loss += Math.abs(expPred - human_guess)
